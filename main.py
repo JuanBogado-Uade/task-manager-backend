@@ -87,13 +87,11 @@ def login(user:UserLogin, db: Session = Depends(get_db)):
                 usuario.bloqueado = False
                 usuario.intentos_fallidos = 0
             
-        contraseñas = db.query(Usuario.contrasena)
-        for con in contraseñas:
-            if verify_password(user.contraseña, con[0]):
-                usuario.bloqueado = False
-                usuario.intentos_fallidos = 0
-                db.commit()
-                return JSONResponse(status_code=200, content={"message": "Inicio de sesión exitoso", "usuario": usuario.nombre, "id": usuario.id,"nombre": usuario.nombre,"correo": usuario.correo})
+        if verify_password(user.contraseña, usuario.contrasena):
+            usuario.bloqueado = False
+            usuario.intentos_fallidos = 0
+            db.commit()
+            return JSONResponse(status_code=200, content={"message": "Inicio de sesión exitoso", "usuario": usuario.nombre, "id": usuario.id,"nombre": usuario.nombre,"correo": usuario.correo})
         
         usuario.intentos_fallidos += 1
         usuario.ultimo_intento_fallido = datetime.now()
@@ -714,6 +712,9 @@ def cambiar_estado_tarea(
         db.rollback()
         return JSONResponse(status_code=500, content={"error": "Error inesperado: " + str(e)})
     
+# ---------------------------
+# Endpoint: listar integrantes de proyecto
+# ---------------------------
 @app.get("/proyectos/{proyecto_id}/integrantes", response_model=List[IntegranteResponse])
 def listar_integrantes_proyecto(
     proyecto_id: int,
