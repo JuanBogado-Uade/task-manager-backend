@@ -10,7 +10,7 @@ load_dotenv()
 DATABASE_URL = os.getenv("SUPABASE_DB_URL")
 
 # Motor de conexión
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=True, connect_args={"sslmode": "require"})
 
 # Base para heredar en modelos
 Base = declarative_base()
